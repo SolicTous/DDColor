@@ -17,8 +17,8 @@ def find_and_save_images(data_path, output_name):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output-name', type=str, required=True, default='dataset_name.txt', help='Path output file.')
-    parser.add_argument('--data-path', type=str, required=True, default='./', help='Path to dataset')
+    parser.add_argument('--output-name', type=str, default='./train.txt', help='Path output file.')
+    parser.add_argument('--data-path', type=str, default='E:/mirflickr/train/', help='Path to dataset')
 
     args = parser.parse_args()
 
