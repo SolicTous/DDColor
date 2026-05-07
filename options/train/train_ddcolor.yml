@@ -12,7 +12,7 @@ datasets:
     name: ImageNet
     type: LabDataset
     dataroot_gt: E:/mirflickr/train/
-    meta_info_file: ['./train.txt']
+    meta_info_file: ['./scripts/train.txt']
     io_backend:
       type: disk
 
@@ -42,7 +42,7 @@ datasets:
     type: LabDataset
     # dataroot_gt: path_to_gt
     dataroot_gt: E:/mirflickr/val/
-    meta_info_file: './val.txt'
+    meta_info_file: './scripts/val.txt'
     gt_size: 512
     io_backend:
       type: disk
