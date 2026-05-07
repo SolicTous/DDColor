@@ -342,7 +342,7 @@ class ColorModel(BaseModel):
             for metric, value in self.metric_results.items():
                 tb_logger.add_scalar(f'metrics/{dataset_name}/{metric}', value, current_iter)
 
-    def _prepare_inception_model_fid(self, path='pretrain/inception_v3_google-1a9a5a14.pth'):
+    def _prepare_inception_model_fid(self, path=r"D:\Models\Actual\DDColor\for_train\inception_v3_google-1a9a5a14.pth"):
         incep_state_dict = torch.load(path, map_location='cpu')
         block_idx = INCEPTION_V3_FID.BLOCK_INDEX_BY_DIM[2048]
         self.inception_model_fid = INCEPTION_V3_FID(incep_state_dict, [block_idx])

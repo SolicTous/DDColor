@@ -177,7 +177,7 @@ class Encoder(nn.Module):
         elif self.encoder_name == 'convnext-b':
             self.load('pretrain/convnext_base_22k_224.pth')
         elif self.encoder_name == 'convnext-l':
-            self.load('pretrain/convnext_large_22k_224.pth')
+            self.load(r"D:\Models\Actual\DDColor\for_train\convnext_large_22k_224.pth")
         else:
             raise NotImplementedError
         print('Loaded pretrained convnext model.')
