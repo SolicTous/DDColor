@@ -1,4 +1,6 @@
 import argparse
+import sys
+
 import cv2
 import numpy as np
 import os
@@ -9,16 +11,18 @@ import torch.nn.functional as F
 
 from convert_onnx import *
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 class ImageColorizationPipeline(object):
 
     def __init__(self, model_path, input_size=256, model_size='large'):
 
         self.input_size = input_size
-        if torch.cuda.is_available():
-            self.device = torch.device('cuda')
-        else:
-            self.device = torch.device('cpu')
+        # if torch.cuda.is_available():
+        #     self.device = torch.device('cuda')
+        # else:
+        #     self.device = torch.device('cpu')
+        self.device = torch.device('cpu')
 
         if model_size == 'tiny':
             self.encoder_name = 'convnext-t'
@@ -77,7 +81,7 @@ class ImageColorizationPipeline(object):
         output_ab = self.model(tensor_gray_rgb).cpu()  # (1, 2, self.height, self.width)
 
         if not self.convert_done:
-            convert_onnx(pt_model = self.model, fin_path = r"D:\Models\AiEditor\onnx\colorize\DDColorOpt.onnx",
+            convert_onnx(pt_model = self.model, fin_path = r"D:\Models\AiEditor\onnx\colorize\DDColorOpt_tr.onnx",
                          device = self.device, test_input = tensor_gray_rgb.permute(0, 2, 3, 1))
             self.convert_done = True
 
@@ -94,9 +98,9 @@ class ImageColorizationPipeline(object):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, default='D:\Models\Colorize\DDColor\default\damo\cv_ddcolor_image-colorization\pytorch_model.pt') # pretrain/net_g_200000.pth
+    parser.add_argument('--model_path', type=str, default=r'C:\Users\marsel\PycharmProjects\DDColor\experiments\train_ddcolor_l\models\net_g_320000.pth') # pretrain/net_g_200000.pth
     parser.add_argument('--input', type=str, default='D:/OutputsByTask/Noise/NoisePhoto/') # figure/
-    parser.add_argument('--output', type=str, default='T:/NeuralNetworks/Color/DDColor/default/test/', help='output folder or video path') # results
+    parser.add_argument('--output', type=str, default=r'C:\Users\marsel\PycharmProjects\DDColor\experiments\train_ddcolor_l\visualization', help='output folder or video path') # results
     parser.add_argument('--input_size', type=int, default=512, help='input size for model')
     parser.add_argument('--model_size', type=str, default='large', help='ddcolor model size')
     args = parser.parse_args()
