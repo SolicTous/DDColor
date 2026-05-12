@@ -23,6 +23,12 @@ datasets:
     use_hflip: True
     use_rot: False
 
+    jpeg_prob: 0.25
+    jp_low: 50
+    jp_high: 100
+    noise_prob: 0.2
+    blur_prob: 0.25
+
     # cutmix / fmix
     do_cutmix: False
     cutmix_p: 0.5

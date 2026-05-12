@@ -5,10 +5,96 @@ import numpy as np
 import torch
 from torch.utils import data as data
 
-from basicsr.data.transforms import rgb2lab
+from basicsr.data.transforms import rgb2lab, augment
 from basicsr.utils import FileClient, get_root_logger, imfrombytes, img2tensor
 from basicsr.utils.registry import DATASET_REGISTRY
 from basicsr.data.fmix import sample_mask
+
+
+def augment_image_in_memory(img, jpeg_prob=0.25, jp_low=50, jp_high=100,
+                            noise_prob=0.2, blur_prob=0.25):
+    """
+    Применяет случайные лёгкие аугментации к изображению OpenCV прямо в памяти.
+
+    :param img: numpy массив изображения (BGR, uint8)
+    :param jpeg_prob: вероятность применения JPEG-артефактов
+    :param jp_low: минимальное качество JPEG
+    :param jp_high: максимальное качество JPEG
+    :param noise_prob: вероятность добавления шума
+    :param blur_prob: вероятность добавления размытия
+    :return: изменённый numpy массив
+    """
+    # Работаем с копией, чтобы не менять исходное изображение
+    img_out = img.copy()
+    h, w = img_out.shape[:2]
+    is_color = len(img_out.shape) == 3
+
+    # 1. Размытие (Blur)
+    if random.random() < blur_prob:
+        blur_type = random.choice(['gaussian', 'median', 'avg', 'resize'])
+
+        if blur_type == 'gaussian':
+            k = random.choice([3, 5])
+            sigma = random.uniform(0.5, 1.5)
+            img_out = cv2.GaussianBlur(img_out, (k, k), sigma)
+
+        elif blur_type == 'median':
+            k = random.choice([3, 5])
+            img_out = cv2.medianBlur(img_out, k)
+
+        elif blur_type == 'avg':
+            k = random.choice([3, 5])
+            img_out = cv2.blur(img_out, (k, k))
+
+        elif blur_type == 'resize':
+            # Увеличение и обратное уменьшение (имитация артефактов интерполяции/лёгкого блюра)
+            scale = random.uniform(1.1, 1.3)
+            new_h, new_w = int(h * scale), int(w * scale)
+            img_up = cv2.resize(img_out, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+            img_out = cv2.resize(img_up, (w, h), interpolation=cv2.INTER_LINEAR)
+
+    # 2. Лёгкий шум (Noise)
+    if random.random() < noise_prob:
+        noise_type = random.choice(['gaussian', 'salt_pepper', 'uniform'])
+
+        if noise_type == 'gaussian':
+            sigma = random.uniform(5.0, 12.0)
+            noise = np.random.normal(0, sigma, img_out.shape)
+            img_out = np.clip(img_out.astype(np.float32) + noise, 0, 255).astype(np.uint8)
+
+        elif noise_type == 'salt_pepper':
+            amount = random.uniform(0.005, 0.015)  # 0.5% - 1.5% пикселей
+            row, col = img_out.shape[:2]
+            s_vs_p = 0.5
+
+            # Salt (белые точки)
+            num_salt = int(np.ceil(amount * row * col * s_vs_p))
+            coords = [np.random.randint(0, i - 1, num_salt) for i in img_out.shape[:2]]
+            if is_color:
+                img_out[coords[0], coords[1], :] = 255
+            else:
+                img_out[coords[0], coords[1]] = 255
+
+            # Pepper (чёрные точки)
+            num_pepper = int(np.ceil(amount * row * col * (1.0 - s_vs_p)))
+            coords = [np.random.randint(0, i - 1, num_pepper) for i in img_out.shape[:2]]
+            if is_color:
+                img_out[coords[0], coords[1], :] = 0
+            else:
+                img_out[coords[0], coords[1]] = 0
+
+        elif noise_type == 'uniform':
+            noise = np.random.uniform(-10, 10, img_out.shape)
+            img_out = np.clip(img_out.astype(np.float32) + noise, 0, 255).astype(np.uint8)
+
+    # 3. JPEG артефакты (сжатие/распаковка в памяти)
+    if random.random() < jpeg_prob:
+        quality = random.randint(jp_low, jp_high)
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
+        _, enc_img = cv2.imencode('.jpg', img_out, encode_param)
+        img_out = cv2.imdecode(enc_img, cv2.IMREAD_COLOR if is_color else cv2.IMREAD_GRAYSCALE)
+
+    return img_out
 
 
 @DATASET_REGISTRY.register()
@@ -73,6 +159,8 @@ class LabDataset(data.Dataset):
                 retry -= 1
         img_gt = imfrombytes(img_bytes, float32=True)
         img_gt = cv2.resize(img_gt, (gt_size, gt_size))  # TODO: 直接resize是否是最佳方案？
+
+        img_gt = augment(img_gt, self.opt['use_hflip'], self.opt['use_rot'])
         
         # -------------------------------- (Optional) CutMix & FMix -------------------------------- #
         if self.do_fmix and np.random.uniform(0., 1., size=1)[0] > self.fmix_p:
@@ -106,7 +194,18 @@ class LabDataset(data.Dataset):
         # ----------------------------- Get gray lq, to tentor ----------------------------- #
         # convert to gray
         img_gt = cv2.cvtColor(img_gt, cv2.COLOR_BGR2RGB)
-        img_l, img_ab = rgb2lab(img_gt)
+
+        augmented_img = augment_image_in_memory(
+            img_gt,
+            jpeg_prob = self.opt['jpeg_prob'],
+            jp_low = self.opt['jp_low'],
+            jp_high = self.opt['jp_high'],
+            noise_prob = self.opt['noise_prob'],
+            blur_prob = self.opt['blur_prob']
+        )
+
+        img_l, _ = rgb2lab(augmented_img)
+        _, img_ab = rgb2lab(img_gt)
 
         target_a, target_b = self.ab2int(img_ab)
 
