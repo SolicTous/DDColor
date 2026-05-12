@@ -52,6 +52,15 @@ datasets:
     gt_size: 512
     io_backend:
       type: disk
+
+
+    use_hflip: False
+    use_rot: False
+    jpeg_prob: 0
+    jp_low: 100
+    jp_high: 100
+    noise_prob: 0
+    blur_prob: 0
       
     # cutmix / fmix
     do_cutmix: False
