@@ -145,8 +145,8 @@ class ConvNeXt(nn.Module):
         # add norm layers for each output
         out_indices = (0, 1, 2, 3)
         for i in out_indices:
-            layer = LayerNorm(dims[i], eps=1e-6, data_format="channels_first")
-            # layer = nn.Identity()
+            layer = nn.Identity()
+            # layer = LayerNorm(dims[i], eps=1e-6, data_format="channels_first")
             layer_name = f'norm{i}'
             self.add_module(layer_name, layer)
 
@@ -167,10 +167,9 @@ class ConvNeXt(nn.Module):
             x = self.downsample_layers[i](x)
             x = self.stages[i](x)
 
-            # add extra norm
-            norm_layer = getattr(self, f'norm{i}')
-            x = norm_layer(x)
-            # norm_layer(x)
+            # add extra norm (now Identity - no-op for speed)
+            # norm_layer = getattr(self, f'norm{i}')
+            # x = norm_layer(x)
 
         return self.norm(x.mean([-2, -1])) # global average pooling, (N, C, H, W) -> (N, C)
 
