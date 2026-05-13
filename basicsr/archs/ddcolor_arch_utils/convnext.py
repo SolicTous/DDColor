@@ -169,8 +169,8 @@ class ConvNeXt(nn.Module):
 
             # add extra norm
             norm_layer = getattr(self, f'norm{i}')
-            x = norm_layer(x)
-            # norm_layer(x)
+            # x = norm_layer(x)
+            norm_layer(x)
 
         return self.norm(x.mean([-2, -1])) # global average pooling, (N, C, H, W) -> (N, C)
 
