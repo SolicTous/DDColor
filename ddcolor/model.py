@@ -73,9 +73,11 @@ class ImageEncoder(nn.Module):
     def __init__(self, encoder_name, hook_names):
         super().__init__()
 
-        assert encoder_name == 'convnext-t' or encoder_name == 'convnext-l'
+        assert encoder_name == 'convnext-t' or encoder_name == 'convnext-l' or encoder_name == 'convnext-b'
         if encoder_name == 'convnext-t':
             self.arch = ConvNeXt(depths=[3, 3, 9, 3], dims=[96, 192, 384, 768])
+        elif encoder_name == 'convnext-b':
+            self.arch = ConvNeXt(depths=[3, 3, 27, 3], dims=[128, 256, 512, 1024])
         elif encoder_name == 'convnext-l':
             self.arch = ConvNeXt(depths=[3, 3, 27, 3], dims=[192, 384, 768, 1536])
         else:

@@ -36,6 +36,8 @@ class ImageColorizationPipeline(object):
 
         if model_size == 'tiny':
             self.encoder_name = 'convnext-t'
+        elif model_size == "base":
+            self.encoder_name = "convnext-b"
         else:
             self.encoder_name = 'convnext-l'
 

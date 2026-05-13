@@ -78,8 +78,13 @@ def parse_args():
 def create_onnx_export(args):
     input_size = args.input_size
     device = torch.device('cpu')
-    
-    encoder_name = 'convnext-t' if args.model_size == 'tiny' else 'convnext-l'
+
+    if args.model_size == "tiny":
+        encoder_name = "convnext-t"
+    elif args.model_size == "base":
+        encoder_name = "convnext-b"
+    elif args.model_size == "large":
+        encoder_name = "convnext-l"
 
     if args.decoder_type == 'MultiScaleColorDecoder':
         model = DDColor(

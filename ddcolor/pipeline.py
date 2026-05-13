@@ -38,7 +38,12 @@ def build_ddcolor_model(
 
     if model_size not in ("tiny", "large"):
         raise ValueError(f"model_size must be 'tiny' or 'large', got: {model_size}")
-    encoder_name = "convnext-t" if model_size == "tiny" else "convnext-l"
+    if model_size == "tiny":
+        encoder_name = "convnext-t"
+    elif model_size == "base":
+        encoder_name = "convnext-b"
+    elif model_size == "large":
+        encoder_name = "convnext-l"
 
     if decoder_type == "MultiScaleColorDecoder":
         # keep default consistent with existing scripts

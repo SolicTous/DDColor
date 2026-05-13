@@ -63,16 +63,16 @@ datasets:
     blur_prob: 0
       
     # cutmix / fmix
-    do_cutmix: False
+    do_cutmix: True # False
     cutmix_p: 0.5
-    do_fmix: False
+    do_fmix: True # False
     fmix_p: 0.5
 
 # network structures
 network_g:
   type: DDColor
   
-  encoder_name: convnext-l
+  encoder_name: convnext-b
   encoder_from_pretrain: True
 
   decoder_name: MultiScaleColorDecoder
@@ -86,7 +86,7 @@ network_g:
 
 network_d:
   type: DynamicUNetDiscriminator
-  nf: 64
+  nf: 48 # 64
   n_channels: 3
 
 

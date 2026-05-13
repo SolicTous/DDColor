@@ -26,6 +26,8 @@ class Predictor(BasePredictor):
 
                 if model_size == "tiny":
                     self.encoder_name = "convnext-t"
+                elif model_size == "base":
+                    self.encoder_name = "convnext-b"
                 else:
                     self.encoder_name = "convnext-l"
 
@@ -91,6 +93,11 @@ class Predictor(BasePredictor):
             model_path="checkpoints/ddcolor_modelscope.pth",
             input_size=512,
             model_size="large",
+        )
+        self.colorizer = ImageColorizationPipeline(
+            model_path="checkpoints/ddcolor_paper_base.pth",
+            input_size=512,
+            model_size="base",
         )
         self.colorizer_tiny = ImageColorizationPipeline(
             model_path="checkpoints/ddcolor_paper_tiny.pth",
