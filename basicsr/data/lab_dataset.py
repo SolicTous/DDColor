@@ -132,10 +132,10 @@ class LabDataset(data.Dataset):
         self.cutmix_params = {'alpha':1.}
         self.cutmix_p = opt['cutmix_p']
 
-        self.jpeg_prob = self.opt['jpeg_prob'],
-        self.jp_low = self.opt['jp_low'],
-        self.jp_high = self.opt['jp_high'],
-        self.noise_prob = self.opt['noise_prob'],
+        self.jpeg_prob = self.opt['jpeg_prob']
+        self.jp_low = self.opt['jp_low']
+        self.jp_high = self.opt['jp_high']
+        self.noise_prob = self.opt['noise_prob']
         self.blur_prob = self.opt['blur_prob']
 
 
