@@ -251,8 +251,8 @@ def rand_bbox(size, lam):
     W = size[0]  # 截取图片的宽度
     H = size[1]  # 截取图片的高度
     cut_rat = np.sqrt(1. - lam)  # 需要截取的 bbox 比例
-    cut_w = np.int(W * cut_rat)  # 需要截取的 bbox 宽度
-    cut_h = np.int(H * cut_rat)  # 需要截取的 bbox 高度
+    cut_w = int(W * cut_rat)  # 需要截取的 bbox 宽度
+    cut_h = int(H * cut_rat)  # 需要截取的 bbox 高度
 
     cx = np.random.randint(W)  # 均匀分布采样，随机选择截取的 bbox 的中心点 x 坐标
     cy = np.random.randint(H)  # 均匀分布采样，随机选择截取的 bbox 的中心点 y 坐标
