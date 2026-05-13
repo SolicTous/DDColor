@@ -9,9 +9,9 @@ NormType = Enum('NormType', 'Batch BatchZero Weight Spectral')
 
 
 class Hook:
+    feature = None
 
     def __init__(self, module):
-        self.feature = None
         self.hook = module.register_forward_hook(self.hook_fn)
 
     def hook_fn(self, module, input, output):
