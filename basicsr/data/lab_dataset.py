@@ -132,6 +132,12 @@ class LabDataset(data.Dataset):
         self.cutmix_params = {'alpha':1.}
         self.cutmix_p = opt['cutmix_p']
 
+        self.jpeg_prob = self.opt['jpeg_prob'],
+        self.jp_low = self.opt['jp_low'],
+        self.jp_high = self.opt['jp_high'],
+        self.noise_prob = self.opt['noise_prob'],
+        self.blur_prob = self.opt['blur_prob']
+
 
     def __getitem__(self, index):
         if self.file_client is None:
@@ -197,11 +203,11 @@ class LabDataset(data.Dataset):
 
         augmented_img = augment_image_in_memory(
             img_gt,
-            jpeg_prob = self.opt['jpeg_prob'],
-            jp_low = self.opt['jp_low'],
-            jp_high = self.opt['jp_high'],
-            noise_prob = self.opt['noise_prob'],
-            blur_prob = self.opt['blur_prob']
+            jpeg_prob = self.jpeg_prob,
+            jp_low = self.jp_low,
+            jp_high = self.jp_high,
+            noise_prob = self.noise_prob,
+            blur_prob = self.blur_prob
         )
 
         img_l, _ = rgb2lab(augmented_img)
