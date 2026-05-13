@@ -126,7 +126,6 @@ class LabDataset(data.Dataset):
         # print(self.ab_palette)
 
         self.do_fmix = opt['do_fmix']
-        self.fmix_params = {'alpha':1.,'decay_power':3.,'shape':(256,256),'max_soft':0.0,'reformulate':False}
         self.fmix_p = opt['fmix_p']
         self.do_cutmix = opt['do_cutmix']
         self.cutmix_params = {'alpha':1.}
@@ -171,15 +170,16 @@ class LabDataset(data.Dataset):
         # -------------------------------- (Optional) CutMix & FMix -------------------------------- #
         if self.do_fmix and np.random.uniform(0., 1., size=1)[0] > self.fmix_p:
             with torch.no_grad():
-                lam, mask = sample_mask(**self.fmix_params)
+                fmix_shape = (img_gt.shape[0], img_gt.shape[1])  # Use actual image size (H, W)
+                lam, mask = sample_mask(alpha=1., decay_power=3., shape=fmix_shape, max_soft=0.0, reformulate=False)
                 
                 fmix_index = random.randint(0, self.__len__())
                 fmix_img_path = self.paths[fmix_index]
                 fmix_img_bytes = self.file_client.get(fmix_img_path, 'gt')
                 fmix_img = imfrombytes(fmix_img_bytes, float32=True)
                 fmix_img = cv2.resize(fmix_img, (gt_size, gt_size))
-                
-                mask = mask.transpose(1, 2, 0)  # (1, 256, 256) ->  # (256, 256, 1)
+
+                mask = mask.transpose(1, 2, 0)  # (1, H, W) -> (H, W, 1)
                 img_gt = mask * img_gt + (1. - mask) * fmix_img
                 img_gt = img_gt.astype(np.float32)
 

@@ -16,7 +16,7 @@ datasets:
     io_backend:
       type: disk
 
-    gt_size: 512
+    gt_size: 256
 
     # augmentation config
     ## flip & rotate90
@@ -38,7 +38,7 @@ datasets:
     # data loader
     use_shuffle: true
     num_worker_per_gpu: 8
-    batch_size_per_gpu: 1
+    batch_size_per_gpu: 6
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
@@ -86,7 +86,7 @@ network_g:
 
 network_d:
   type: DynamicUNetDiscriminator
-  nf: 48 # 64
+  nf: 64 # 64
   n_channels: 3
 
 
