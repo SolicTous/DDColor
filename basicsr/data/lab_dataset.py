@@ -173,7 +173,7 @@ class LabDataset(data.Dataset):
                 fmix_shape = (img_gt.shape[0], img_gt.shape[1])  # Use actual image size (H, W)
                 lam, mask = sample_mask(alpha=1., decay_power=3., shape=fmix_shape, max_soft=0.0, reformulate=False)
                 
-                fmix_index = random.randint(0, self.__len__())
+                fmix_index = random.randint(0, self.__len__() - 1)
                 fmix_img_path = self.paths[fmix_index]
                 fmix_img_bytes = self.file_client.get(fmix_img_path, 'gt')
                 fmix_img = imfrombytes(fmix_img_bytes, float32=True)
@@ -185,7 +185,7 @@ class LabDataset(data.Dataset):
 
         if self.do_cutmix and np.random.uniform(0., 1., size=1)[0] > self.cutmix_p:
             with torch.no_grad():
-                cmix_index = random.randint(0, self.__len__())
+                cmix_index = random.randint(0, self.__len__() - 1)
                 cmix_img_path = self.paths[cmix_index]
                 cmix_img_bytes = self.file_client.get(cmix_img_path, 'gt')
                 cmix_img = imfrombytes(cmix_img_bytes, float32=True)
